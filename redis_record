@@ -1,0 +1,40 @@
+一、redis使用
+1.是一个key-value存储系统 可存储的value类型 String,list,set,zset,hash
+   这些数据都支持 push/pop  add/remove 取交集 并集 差集   这些操作都是原子性的。 并支持不同方式的排序
+   数据都是缓存在内存中  会周期性的把更新的数据写入磁盘或者把修改操作写入追加的记录文件  并在此基础上实现了 主从同步。
+   
+二、redis安装 命令
+1.下载地址 https://github.com/MSOpenTech/redis/releases   linux地址 http://redis.io/download
+2.下载后选择好安装位置  可以把redis路径添加到系统变量中。[添加了环境变量 报错]
+3.执行命令 redis-server.exe redis.windows.conf  启动redis
+4.再启动另一个cmd窗口  在redis下运行命令 [如果设置了环境变量 则无需在redis下运行]
+5.执行 redis-cli.exe -h 127.0.0.1 -p 6379、
+6.set myKey abc [出现问题(error) NOAUTH Authentication required. 因为我本机的redis设置了密码 使用 auth 密码 密码若为字符串 要加双引号]
+7.get myKey   --> 输出了 "abc"
+注：以上的 3 4 5 步骤提示类似:[5804] 20 Aug 10:42:34.291 # Creating Server TCP listening socket 127.0.0.1:6379: bind：No error时，不要惊慌，
+因为服务已经在后台自动启动，这时只需要直接执行命令：redis-cli即可对redis进行操作。
+
+8.执行 redis-cli.exe 连接本地的redis服务 执行 ping   返回PONG    检测redis服务是否启动。
+
+9.在远程服务上执行命令
+redis-cli -h host -p port -a password
+eg:  redis-cli -h 127.0.0.1 -p 6379 -a 12345
+注：redis-cli --raw     可避免中文乱码
+
+三、redis键
+1. del myKey    执行后 成功为1 失败为0
+2. dump key     序列化给定 key ，并返回被序列化的值。 
+3. exists key   有返回1 没有为0
+4. expire key seconds   设置过期时间 以秒计
+5. expireat key timestamp
+6. pexpire key milliseconds
+7. pexpireat key milliseconds-timestamp
+8. 	KEYS pattern  查找所有符合给定模式( pattern)的 key 【不太清楚】
+9. MOVE key db      将当前数据库的 key 移动到给定的数据库 db 当中
+10. PERSIST key     移除 key 的过期时间，key 将持久保持
+11. PTTL key        以毫秒为单位返回 key 的剩余的过期时间  【永久有效的返回-1】
+12.	TTL key         以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)
+13. RANDOMKEY       从当前数据库中随机返回一个 key 
+14. RENAME key newkey   修改 key 的名称
+15. RENAMENX key newkey  仅当newkey不存在时 进行修改
+16. TYPE key            返回key的类型
