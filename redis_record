@@ -21,7 +21,26 @@ redis-cli -h host -p port -a password
 eg:  redis-cli -h 127.0.0.1 -p 6379 -a 12345
 注：redis-cli --raw     可避免中文乱码
 
-三、redis键
+三、数据类型
+1.String
+注：String类型的值 最大可存储512M
+2.Hash
+测试：HMSET zhao field1 "HELLO" field2 "WORLD"
+     "OK"
+     HMGET zhao field1
+     "HELLO"
+     HMGET zhao field2
+     "WORLD"
+注：HMSET中的键与之前String设置的键 不重复 若重复 删除。 每个 hash 可以存储 232 -1 键值对（40多亿）。2的32次幂
+3.List
+测试：lpush zhao redis
+      lpush zhao mongo
+      lpush zhao rabitmq
+      lrange zhao 0 10 --> "rabitmq"  "mongo" "redis"
+是字符串列表 按顺序插入 可设定从左 或从右插入
+注：lpush中的键与之前String设置的键 不重复 若重复 删除
+
+四、redis键
 1. del myKey    执行后 成功为1 失败为0
 2. dump key     序列化给定 key ，并返回被序列化的值。 
 3. exists key   有返回1 没有为0
