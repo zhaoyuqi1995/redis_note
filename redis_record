@@ -1,3 +1,4 @@
+一下笔记参见https://www.runoob.com/redis/redis-strings.html
 一、redis使用
 1.是一个key-value存储系统 可存储的value类型 String,list,set,zset,hash
    这些数据都支持 push/pop  add/remove 取交集 并集 差集   这些操作都是原子性的。 并支持不同方式的排序
@@ -31,6 +32,8 @@ eg:  redis-cli -h 127.0.0.1 -p 6379 -a 12345
      "HELLO"
      HMGET zhao field2
      "WORLD"
+可以使用HMSET runoobkey name "redis tutorial" description "redis basic commands for caching" likes 20 visitors 23000
+也可以使用HGETALL runoobkey 获取
 注：HMSET中的键与之前String设置的键 不重复 若重复 删除。 每个 hash 可以存储 232 -1 键值对（40多亿）。2的32次幂
 3.List
 测试：lpush zhao redis
@@ -38,22 +41,57 @@ eg:  redis-cli -h 127.0.0.1 -p 6379 -a 12345
       lpush zhao rabitmq
       lrange zhao 0 10 --> "rabitmq"  "mongo" "redis"
 是字符串列表 按顺序插入 可设定从左 或从右插入
+一个列表最多可以包含  同上
 注：lpush中的键与之前String设置的键 不重复 若重复 删除
+4.set
+使用 sadd key value 【添加元素不能重复】
+    smebers key 获取
+集合中最大的成员数为 同上
+使用 zadd key value 【不重复 并且会排序】
+    ZRANGE key 0 10 WITHSCORES 获取
+集合中最大的成员数 同上
 
-四、redis键
-1. del myKey    执行后 成功为1 失败为0
-2. dump key     序列化给定 key ，并返回被序列化的值。 
-3. exists key   有返回1 没有为0
-4. expire key seconds   设置过期时间 以秒计
-5. expireat key timestamp
-6. pexpire key milliseconds
-7. pexpireat key milliseconds-timestamp
-8. 	KEYS pattern  查找所有符合给定模式( pattern)的 key 【不太清楚】
-9. MOVE key db      将当前数据库的 key 移动到给定的数据库 db 当中
-10. PERSIST key     移除 key 的过期时间，key 将持久保持
-11. PTTL key        以毫秒为单位返回 key 的剩余的过期时间  【永久有效的返回-1】
-12.	TTL key         以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)
-13. RANDOMKEY       从当前数据库中随机返回一个 key 
-14. RENAME key newkey   修改 key 的名称
-15. RENAMENX key newkey  仅当newkey不存在时 进行修改
-16. TYPE key            返回key的类型
+四、HyperLogLog
+用来做基数（不重复元素）统计的算法
+
+五、发布订阅
+打开redis客户端
+执行 subscribe PIPENAME
+     显示reading message...
+再打开一个客户端
+执行 publish PIPENAME "HELLO WORLD!"
+订阅的客户端就会收到消息 
+
+六、redis事务
+保证三点：
+1.批量操作在发送 EXEC 命令前 放入队列缓存
+2.收到 EXEC 命令后进入事务执行，其中的任一个命令执行失败 其他的命令仍然被执行
+3.执行过程中 其他客户端提交的命令请求 不会插入到事务执行命令序列中
+示例：multi --开始事务
+SET book-name "Mastering C++ in 21 days"
+QUEUED
+GET book-name
+QUEUED
+SADD tag "C++" "Programming" "Mastering Series"
+QUEUED
+SMEMBERS tag
+QUEUED
+
+exec --执行事务 输出结果  注意在multi中 输入命令 如果有错误的话 输入exec不会成功执行。
+
+七、redis脚本
+使用Lua解释器来执行脚本  常用命令为EVAL
+
+八、redis数据备份与恢复
+执行 SAVE 用于备份  -该命令将在 redis 安装目录中创建dump.rdb文件。 BGSAVE 该命令在后台执行备份
+恢复数据 只需将备份文件 (dump.rdb) 移动到 redis 安装目录并启动服务即可
+ CONFIG GET dir  --获取redis 安装目录
+
+九、使用命令设置redis密码
+之前在配置文件中修改 设置了密码
+ config get requirepass  --获取密码 如果没有
+ CONFIG set requirepass "zhao"  --设置密码
+
+十、redis连接配置
+1.配置最大连接数 Redis2.4 中，最大连接数是被直接硬编码在代码里面的，而在2.6版本中这个值变成可配置的。
+config get maxclients
